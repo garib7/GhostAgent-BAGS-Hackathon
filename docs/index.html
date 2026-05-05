@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostAgent Protocol</title>
+    <title>GhostAgent Protocol | The BAGS Hackathon</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00ffa3;
             --secondary: #dc1fff;
+            --accent: #03e1ff;
             --bg: #050508;
+            --panel-bg: rgba(255, 255, 255, 0.03);
             --text: #f0f0f5;
             --dim: #7f8ea3;
         }
@@ -17,189 +19,249 @@
         body {
             margin: 0;
             background-color: var(--bg);
-            background-image: radial-gradient(circle at 10% 20%, rgba(220, 31, 255, 0.05), transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(0, 255, 163, 0.05), transparent 40%);
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(220, 31, 255, 0.08), transparent 40%),
+                radial-gradient(circle at 85% 30%, rgba(0, 255, 163, 0.08), transparent 40%);
             color: var(--text);
             font-family: 'Outfit', sans-serif;
             overflow-x: hidden;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 60px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
         }
 
+        /* Header Section */
+        .header { text-align: center; margin-bottom: 50px; }
+
         .logo-box {
-            width: 120px;
-            height: 120px;
+            width: 100px; height: 100px;
             background: linear-gradient(135deg, var(--secondary), var(--primary));
             border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 40px rgba(0, 255, 163, 0.3);
-            margin-bottom: 30px;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 50px rgba(0, 255, 163, 0.2);
+            margin: 0 auto 30px auto;
         }
 
         h1 {
-            font-size: 4rem;
-            font-weight: 900;
-            margin: 0;
+            font-size: 4.5rem; font-weight: 900; margin: 0;
             background: linear-gradient(to right, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -2px;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -2px; line-height: 1.1;
         }
 
         .subtitle {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.2rem;
-            color: var(--primary);
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            font-family: 'JetBrains Mono', monospace; font-size: 1.2rem;
+            color: var(--primary); margin-top: 15px; letter-spacing: 2px; text-transform: uppercase;
         }
 
-        p {
-            font-size: 1.2rem;
-            color: var(--dim);
-            line-height: 1.6;
-            max-width: 700px;
-            margin-top: 30px;
+        .description {
+            font-size: 1.25rem; color: var(--dim); line-height: 1.6;
+            max-width: 800px; margin: 30px auto; text-align: center;
         }
 
-        .terminal {
-            background: rgba(10, 10, 15, 0.8);
-            border: 1px solid rgba(0, 255, 163, 0.2);
-            border-radius: 12px;
-            padding: 30px;
-            width: 100%;
-            margin-top: 50px;
-            text-align: left;
-            font-family: 'JetBrains Mono', monospace;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .terminal::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-        }
-
-        .line { margin-bottom: 15px; }
-        .prompt { color: var(--secondary); font-weight: bold; }
-        .success { color: var(--primary); }
-
-        .btn-group {
-            display: flex;
-            gap: 20px;
-            margin-top: 50px;
-        }
+        .btn-group { display: flex; gap: 20px; justify-content: center; margin-bottom: 60px; }
 
         .btn {
-            padding: 15px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            font-size: 1rem;
-            transition: all 0.3s;
-            text-transform: uppercase;
+            padding: 16px 32px; border-radius: 8px; text-decoration: none;
+            font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1rem;
+            transition: all 0.3s; text-transform: uppercase; cursor: pointer;
         }
 
-        .btn-primary {
-            background: rgba(0, 255, 163, 0.1);
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
+        .btn-primary { background: rgba(0, 255, 163, 0.1); color: var(--primary); border: 1px solid var(--primary); box-shadow: 0 0 15px rgba(0,255,163,0.1); }
+        .btn-primary:hover { background: var(--primary); color: #000; box-shadow: 0 0 30px rgba(0, 255, 163, 0.4); }
 
-        .btn-primary:hover {
-            background: var(--primary);
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 255, 163, 0.4);
-        }
+        .btn-ghost { background: rgba(220, 31, 255, 0.1); color: var(--secondary); border: 1px solid var(--secondary); }
+        .btn-ghost:hover { background: var(--secondary); color: #fff; box-shadow: 0 0 30px rgba(220, 31, 255, 0.4); }
 
-        .btn-ghost {
-            background: rgba(220, 31, 255, 0.1);
-            color: var(--secondary);
-            border: 1px solid var(--secondary);
+        /* Terminal Section */
+        .terminal {
+            background: #0a0a0f; border: 1px solid rgba(0, 255, 163, 0.3);
+            border-radius: 12px; padding: 25px; width: 100%; max-width: 800px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); position: relative; margin-bottom: 60px;
+        }
+        .terminal-header {
+            position: absolute; top: 0; left: 0; right: 0; height: 30px;
+            background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; padding: 0 15px; gap: 8px;
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot:nth-child(1) { background: #ff5f56; } .dot:nth-child(2) { background: #ffbd2e; } .dot:nth-child(3) { background: #27c93f; }
+        .terminal-content { margin-top: 25px; min-height: 140px; color: var(--primary); }
+        .log-time { color: var(--dim); margin-right: 15px; }
+
+        /* Tech & Features Grid */
+        h2.section-title {
+            text-align: center; font-size: 2.5rem; margin: 40px 0 30px; color: #fff;
         }
 
         .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            margin-top: 60px;
-            width: 100%;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px; width: 100%; margin-bottom: 60px;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 25px;
-            border-radius: 12px;
-            text-align: left;
+            background: var(--panel-bg); border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px; border-radius: 16px; transition: transform 0.3s;
         }
+        .card:hover { transform: translateY(-5px); border-color: rgba(0, 255, 163, 0.3); }
 
-        .card h3 {
-            color: #fff;
-            margin-top: 0;
-            font-family: 'JetBrains Mono', monospace;
+        .card h3 { color: #fff; margin-top: 0; font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; color: var(--primary);}
+        .card p { font-size: 1rem; color: var(--dim); line-height: 1.6; }
+
+        /* Architecture & Tokenomics */
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; margin-bottom: 60px;
         }
+        @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--panel-bg); padding: 35px; border-radius: 16px; border: 1px solid rgba(220, 31, 255, 0.2);
+        }
+        .panel h3 { color: var(--secondary); font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+
+        .token-stat { display: flex; justify-content: space-between; margin-bottom: 15px; font-family: 'JetBrains Mono'; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px; }
+        .token-stat span:last-child { color: var(--text); font-weight: bold; }
+
+        .arch-list { list-style: none; padding: 0; margin: 0; }
+        .arch-list li { margin-bottom: 12px; font-size: 1rem; color: var(--dim); display: flex; gap: 10px; }
+        .arch-list li strong { color: var(--primary); font-family: 'JetBrains Mono'; }
+
+        footer { text-align: center; padding: 40px; border-top: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono'; color: var(--dim); font-size: 0.9rem; width: 100%; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo-box">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="white">
-                <path d="M12,2A9,9 0 0,1 21,11V21.5L18.5,19L16,21.5L13.5,19L11,21.5L8.5,19L6,21.5L3.5,19L1,21.5V11A9,9 0 0,1 10,2M12,4A7,7 0 0,0 5,11V18.17L6,17.17L8.5,19.67L11,17.17L13.5,19.67L16,17.17L18.5,19.67L19,18.17V11A7,7 0 0,0 12,4Z" />
-            </svg>
+        <div class="header">
+            <div class="logo-box">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="white">
+                    <path d="M12,2A9,9 0 0,1 21,11V21.5L18.5,19L16,21.5L13.5,19L11,21.5L8.5,19L6,21.5L3.5,19L1,21.5V11A9,9 0 0,1 10,2M12,4A7,7 0 0,0 5,11V18.17L6,17.17L8.5,19.67L11,17.17L13.5,19.67L16,17.17L18.5,19.67L19,18.17V11A7,7 0 0,0 12,4Z" />
+                </svg>
+            </div>
+            <h1>GhostAgent</h1>
+            <div class="subtitle">Autonomous HFT Engine on Solana</div>
+            <p class="description">Retail traders on Solana are systematically outpaced by institutional HFT bots and toxic order flow. GhostAgent Protocol is the counter-measure: a fully autonomous, sub-second scalping engine governed by the $GHOST token.</p>
         </div>
-
-        <h1>GhostAgent</h1>
-        <div class="subtitle">Autonomous HFT Engine on Solana</div>
-
-        <p>Retail traders are systematically destroyed by institutional bots and toxic order flow. GhostAgent is the counter-measure. An autonomous, sub-second scalping engine governed by the $GHOST token.</p>
 
         <div class="btn-group">
-            <a href="https://github.com/garib7/GhostAgent-BAGS-Hackathon" target="_blank" class="btn btn-primary">View GitHub Repo</a>
-            <a href="https://x.com/Rrutelya" target="_blank" class="btn btn-ghost">Follow Director</a>
+            <a href="https://github.com/garib7/GhostAgent-BAGS-Hackathon" target="_blank" class="btn btn-primary">GitHub Repository</a>
+            <a href="https://dorahacks.io/hackathon/the-bags-hackathon/buidl" target="_blank" class="btn btn-ghost">DoraHacks SUBMISSION</a>
         </div>
 
+        <!-- Animated Terminal -->
         <div class="terminal">
-            <div class="line"><span class="prompt">ghost@node:~$</span> ./initiate_protocol --network solana --bags-ecosystem</div>
-            <div class="line" style="color: #ccc;">[INFO] Checking wallet for $GHOST gate token...</div>
-            <div class="line"><span class="success">[OK]</span> 15,000 $GHOST verified. Gate Authorized.</div>
-            <div class="line" style="color: #ccc;">[INFO] Booting HFT Neural Link...</div>
-            <div class="line"><span class="success">[LIVE]</span> Hunting liquidity inefficiencies. Fee-sharing: ACTIVATED.</div>
+            <div class="terminal-header">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+            <div class="terminal-content" id="log-output">
+                <!-- JS will inject logs here -->
+            </div>
         </div>
 
+        <!-- Value Proposition -->
         <div class="features">
             <div class="card">
-                <h3>Hold-to-Use</h3>
-                <p style="font-size: 0.9rem; margin-top: 10px;">Requires a minimum balance of 10,000 $GHOST in your Solana wallet to unlock the autonomous trading algorithms.</p>
+                <h3>Hold-to-Use Gate</h3>
+                <p>The protocol is strictly token-gated. A minimum wallet balance of <strong>10,000 $GHOST</strong> is required to unlock the neural routing logic. If your balance drops, the bot triggers an emergency extract.</p>
             </div>
             <div class="card">
-                <h3>Auto Burn</h3>
-                <p style="font-size: 0.9rem; margin-top: 10px;">5% of all HFT net profits are systematically used to buy-back $GHOST on Raydium and burn them, creating a deflationary economy.</p>
+                <h3>Deflationary Burn</h3>
+                <p>5% of all HFT net profits are systematically used to market-buy $GHOST on Raydium. 50% is instantly burned, while the remaining 50% flows to Bags LP providers as real yield.</p>
             </div>
             <div class="card">
-                <h3>GhostComm</h3>
-                <p style="font-size: 0.9rem; margin-top: 10px;">Connected to a proprietary AI Social Proxy that broadcasts on-chain victories and token burns directly to Web2 audiences.</p>
+                <h3>GhostComm API</h3>
+                <p>GhostAgent doesn't just trade; it talks. Connected to a proprietary AI Social Proxy (GhostComm) that broadcasts on-chain victories and token burns directly to Web2 audiences autonomously.</p>
             </div>
         </div>
 
-        <div style="margin-top: 50px; font-family: 'JetBrains Mono'; font-size: 0.8rem; color: #555;">
-            Built for The BAGS Hackathon 2026. Vibe Coding architecture.
+        <!-- Deep Dive Section -->
+        <h2 class="section-title">Protocol Specifications</h2>
+
+        <div class="info-grid">
+            <div class="panel">
+                <h3 style="color: var(--primary);">$GHOST Tokenomics</h3>
+                <p style="color: var(--dim); font-size: 0.9rem; margin-bottom: 20px;">SPL Token minted on Solana via Bags.fm ecosystem infrastructure.</p>
+
+                <div class="token-stat"><span>Total Supply:</span><span>100,000,000 GHOST</span></div>
+                <div class="token-stat"><span>Decimals:</span><span>6</span></div>
+
+                <div style="margin-top: 25px;">
+                    <div style="display:flex; justify-content:space-between; font-size: 0.8rem; margin-bottom: 5px; color: var(--dim);"><span>Community & LP</span><span>45%</span></div>
+                    <div style="width: 100%; background: #222; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 15px;"><div style="width: 45%; background: var(--primary); height: 100%;"></div></div>
+
+                    <div style="display:flex; justify-content:space-between; font-size: 0.8rem; margin-bottom: 5px; color: var(--dim);"><span>Ecosystem & Rewards</span><span>25%</span></div>
+                    <div style="width: 100%; background: #222; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 15px;"><div style="width: 25%; background: var(--secondary); height: 100%;"></div></div>
+
+                    <div style="display:flex; justify-content:space-between; font-size: 0.8rem; margin-bottom: 5px; color: var(--dim);"><span>Dev & AI Infra</span><span>15%</span></div>
+                    <div style="width: 100%; background: #222; height: 8px; border-radius: 4px; overflow: hidden;"><div style="width: 15%; background: var(--accent); height: 100%;"></div></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>System Architecture</h3>
+                <p style="color: var(--dim); font-size: 0.9rem; margin-bottom: 20px;">Built utilizing Vibe Coding: Human Director + AI generation.</p>
+                <ul class="arch-list">
+                    <li><strong>bot.py:</strong> Async event loop & HFT Executor Engine.</li>
+                    <li><strong>strategy_router.py:</strong> RSI, ADX & MACD signal generation.</li>
+                    <li><strong>risk_manager.py:</strong> Dynamic DCA calculation & Trailing Stop layer.</li>
+                    <li><strong>web_ui.py:</strong> Flask WebSocket API bridging the UX.</li>
+                    <li><strong>api-server.js:</strong> GhostComm social proxy for N8N automation.</li>
+                </ul>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1);">
+                    <div style="font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--accent);">Status: WAITING FOR DEMO VIDEO & TOKEN LAUNCH</div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <footer>
+        <p>Built for The BAGS Hackathon 2026</p>
+        <p><a href="https://x.com/Rrutelya" style="color: var(--dim); text-decoration: none;">Follow the Director on X</a></p>
+    </footer>
+
+    <script>
+        // Terminal Mock Animation
+        const logs = [
+            "[INIT] Establishing Solana RPC trunk...",
+            "[AUTH] Verifying $GHOST balance: 15,240 GHOST. Access Granted.",
+            "[🧠] Loading Neural Models... OK.",
+            "[*] Scanning Bags.fm Liquidity Pools...",
+            "[ROUTE] Arbitrage gap detected (SOL/USDC). Processing...",
+            "[-] Executing HFT swap...",
+            "[SUCCESS] +0.14 SOL realized. Triggering 5% $GHOST Auto-Burn cascade."
+        ];
+
+        const term = document.getElementById('log-output');
+        let index = 0;
+
+        function addLog() {
+            if(index >= logs.length) {
+                setTimeout(() => { term.innerHTML = ""; index = 0; addLog(); }, 5000);
+                return;
+            }
+
+            const p = document.createElement('div');
+            p.style.marginBottom = "8px";
+
+            let color = "#00ffa3";
+            if(logs[index].includes("[INIT]") || logs[index].includes("[AUTH]")) color = "#dc1fff";
+            if(logs[index].includes("Scanning")) color = "#7f8ea3";
+            if(logs[index].includes("SUCCESS")) color = "#03e1ff";
+
+            p.innerHTML = `<span class="log-time">${new Date().toISOString().split('T')[1].slice(0,8)}</span> <span style="color:${color}">${logs[index]}</span>`;
+            term.appendChild(p);
+            index++;
+
+            setTimeout(addLog, Math.random() * 1500 + 500); // Random delay between 0.5s - 2s
+        }
+
+        setTimeout(addLog, 1000);
+    </script>
 </body>
 </html>
