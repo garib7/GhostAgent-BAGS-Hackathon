@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReisBot Pro - Strateji ve Kullanım Kılavuzu</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #7000ff;
+            --accent: #ff00c8;
+            --success: #00ff88;
+            --danger: #ff3366;
+            --warning: #ffcc00;
+            --info: #00aaff;
+            --bg: #05070a;
+            --panel: rgba(13, 17, 30, 0.95);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(112, 0, 255, 0.15), transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(0, 242, 255, 0.1), transparent 50%);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* HEADER */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        /* GRID LAYOUT */
+        .grid {
+            display: grid;
+            gap: 30px;
+        }
+
+        /* SECTIONS */
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--white);
+            margin: 50px 0 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            opacity: 0.5;
+        }
+
+        .card h3 {
+            color: var(--text-main);
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* LISTS */
+        .feature-list {
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-dim);
+        }
+
+        .feature-list li i {
+            margin-top: 4px;
+            color: var(--success);
+        }
+
+        .feature-list li strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* BADGES */
+        .badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        .badge.vip {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: black;
+        }
+
+        .badge.tech {
+            color: var(--primary);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            background: transparent;
+        }
+
+        /* TABLES */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            border-top: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* BOXES */
+        .highlight-box {
+            background: rgba(112, 0, 255, 0.1);
+            border: 1px solid rgba(112, 0, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .highlight-box.danger {
+            background: rgba(255, 51, 102, 0.1);
+            border-color: rgba(255, 51, 102, 0.3);
+            color: #ffb3c1;
+        }
+
+        .highlight-box h4 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 10px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>REISBOT PRO <span style="font-size:1.5rem; opacity:0.5; font-weight:300">| STRATEJİ MERKEZİ</span></h1>
+            <p>Hedge Fon Kalitesinde Algoritmik Scalping Sistemi</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('tr')">🇹🇷 Türkçe Analiz</button>
+            <button class="tab-btn" onclick="showTab('en')">🇬🇧 English Analysis</button>
+        </div>
+
+        <!-- TÜRKÇE ANALİZ -->
+        <div id="content-tr">
+
+            <!-- BÖLÜM 1: FELSEFE -->
+            <h2 class="section-title"><i class="fas fa-brain"></i> Botun Çalışma Felsefesi</h2>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="card">
+                    <h3>Stop Loss Yoktur <span class="badge" style="background:var(--danger)">KRİTİK</span></h3>
+                    <p style="color:var(--text-dim); font-size:0.95rem;">
+                        ReisBot, klasik botlar gibi "Zararı Durdur" (SL) kullanmaz. Çünkü piyasa yapıcıların (MM)
+                        stopları patlatıp fiyatı tersine çevirdiğini bilir.<br><br>
+                        Bunun yerine <b>"Maliyet Yönetimi"</b> yapar. Fiyat düşerse ekleme yapar, ortalamayı aşağı çeker
+                        ve en ufak yükselişte kârla çıkar.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Likidite Avcısı (Wick Hunter)</h3>
+                    <p style="color:var(--text-dim); font-size:0.95rem;">
+                        Bot işlem açmak için sabırlıdır. Fiyatın destek/direnç noktalarına sert iğne atmasını (Wick)
+                        bekler. Panik satıcılarının mallarını en dipten toplar.
+                    </p>
+                </div>
+            </div>
+
+            <!-- BÖLÜM 2: SİNYAL -->
+            <h2 class="section-title"><i class="fas fa-satellite-dish"></i> Giriş Sinyalleri (The Sniper)</h2>
+            <div class="card">
+                <p style="margin-bottom:20px;">Bir işlem açılması için aşağıdaki 3 koşulun <b>MİLİSANİYELER İÇİNDE</b>
+                    aynı anda gerçekleşmesi gerekir:</p>
+
+                <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="highlight-box"
+                        style="margin-top:0; border-color:var(--success); background:rgba(0,255,136,0.05)">
+                        <h4 style="color:var(--success)"><i class="fas fa-clock"></i> 1. MTF Analizi</h4>
+                        <ul class="feature-list" style="font-size:0.85rem">
+                            <li><strong>1 Dakika:</strong> RSI < 25 (Aşırı Satım)</li>
+                            <li><strong>15 Dakika:</strong> Trend Yönü Kontrolü</li>
+                            <li>Anlık fırsat ile ana trend çelişirse İŞLEM YOK.</li>
+                        </ul>
+                    </div>
+
+                    <div class="highlight-box"
+                        style="margin-top:0; border-color:var(--primary); background:rgba(0,242,255,0.05)">
+                        <h4 style="color:var(--primary)"><i class="fas fa-compress-arrows-alt"></i> 2. Bant İhlali</h4>
+                        <ul class="feature-list" style="font-size:0.85rem">
+                            <li>Fiyat Bollinger Alt Bandını <strong>DELMELİDİR</strong>.</li>
+                            <li>Bant içine geri giriş (Recovery) sinyali beklenir.</li>
+                        </ul>
+                    </div>
+
+                    <div class="highlight-box"
+                        style="margin-top:0; border-color:var(--accent); background:rgba(255,0,200,0.05)">
+                        <h4 style="color:var(--accent)"><i class="fas fa-filter"></i> 3. ADX Filtresi</h4>
+                        <ul class="feature-list" style="font-size:0.85rem">
+                            <li>ADX > 30 ise (Trend çok güçlüyse) terse işlem açmaz.</li>
+                            <li>Yataya bağlayan piyasada (Chop) çalışır.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BÖLÜM 3: STRATEJİ -->
+            <h2 class="section-title"><i class="fas fa-layer-group"></i> Kademeli Alım (Layering) & Çıkış</h2>
+            <div class="card">
+                <h3>Hayat Kurtaran Strateji: "Maliyetten Çıkış" (Trim at Cost)</h3>
+                <p style="margin:15px 0; color:var(--text-dim)">
+                    Bu botun en büyük sırrıdır. Fiyat terste kaldığında bot 2. ve 3. kademeyi alır. Ortalamanız
+                    iyileşir. Fiyat yeni ortalamaya değdiği an, bot <b>KÂR BEKLEMEDEN</b> riskli pozisyonları kapatır
+                    (Trim).
+                </p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Senaryo</th>
+                                <th>Botun Hamlesi</th>
+                                <th>Sonuç</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Fiyat %1.5 Düştü</td>
+                                <td style="color:var(--warning)">KADEME 1 ALINIR</td>
+                                <td>Ortalama maliyet %0.75 iyileşir.</td>
+                            </tr>
+                            <tr>
+                                <td>Fiyat %3.0 Düştü</td>
+                                <td style="color:var(--danger)">KADEME 2 ALINIR ($15 USD)</td>
+                                <td>Ortalama piyasa fiyatına çok yaklaşır.</td>
+                            </tr>
+                            <tr style="background:rgba(0,255,136,0.05)">
+                                <td>Fiyat Hafif Toparladı</td>
+                                <td style="color:var(--success)"><b>TRIM (MALİYETTEN ÇIKIŞ)</b></td>
+                                <td>Riskli eklemeler kapatılır, ana pozisyon güvenle taşınır.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BÖLÜM 4: AYARLAR -->
+            <h2 class="section-title"><i class="fas fa-sliders-h"></i> Güncel Kasa Ayarları</h2>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <!-- TON VIP -->
+                <div class="card" style="border-color:var(--warning)">
+                    <h3><i class="fas fa-crown" style="color:gold"></i> TON/USDT (VIP) <span class="badge vip">MAX
+                            GÜÇ</span></h3>
+                    <div class="table-container" style="margin-top:15px">
+                        <table>
+                            <tr>
+                                <td>Başlangıç</td>
+                                <td style="text-align:right; font-weight:bold">$15.00</td>
+                            </tr>
+                            <tr>
+                                <td>Kademe 1</td>
+                                <td style="text-align:right">$8.00</td>
+                            </tr>
+                            <tr>
+                                <td>Kademe 2</td>
+                                <td style="text-align:right">$8.00</td>
+                            </tr>
+                            <tr style="color:var(--warning)">
+                                <td>Kademe 3</td>
+                                <td style="text-align:right; font-weight:bold">$15.00</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- DİĞERLERİ -->
+                <div class="card">
+                    <h3>Diğer Coinler (BTC, ETH...) <span class="badge"
+                            style="background:rgba(255,255,255,0.1)">STANDART</span></h3>
+                    <div class="table-container" style="margin-top:15px">
+                        <table>
+                            <tr>
+                                <td>Başlangıç</td>
+                                <td style="text-align:right; font-weight:bold">$10.00</td>
+                            </tr>
+                            <tr>
+                                <td>Kademe 1</td>
+                                <td style="text-align:right">$5.00</td>
+                            </tr>
+                            <tr>
+                                <td>Kademe 2</td>
+                                <td style="text-align:right">$5.00</td>
+                            </tr>
+                            <tr style="color:var(--text-dim)">
+                                <td>Kademe 3</td>
+                                <td style="text-align:right; font-weight:bold">$10.00</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- İNGİLİZCE İÇERİK (BASİTLEŞTİRİLMİŞ) -->
+        <div id="content-en" style="display:none">
+
+            <h2 class="section-title"><i class="fas fa-brain"></i> Core Philosophy</h2>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="card">
+                    <h3>No Stop Loss <span class="badge" style="background:var(--danger)">CRITICAL</span></h3>
+                    <p style="color:var(--text-dim)">
+                        ReisBot does NOT use standard Stop Loss against Market Makers. It uses <b>"Cost Management"</b>
+                        instead.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Wick Hunter</h3>
+                    <p style="color:var(--text-dim)">
+                        Waits for price to pierce bands (Wicks) to catch panic dumps at the very bottom.
+                    </p>
+                </div>
+            </div>
+
+            <h2 class="section-title"><i class="fas fa-layer-group"></i> Layering & Strategy</h2>
+            <div class="card">
+                <h3>The Lifesaver: "Trim at Cost"</h3>
+                <p style="margin:15px 0; color:var(--text-dim)">
+                    When price recovers to your new average entry, the bot automatically closes the risky extra layers
+                    to reset risk.
+                </p>
+                <div class="table-container">
+                    <table>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Action</th>
+                        </tr>
+                        <tr>
+                            <td>Drop %1.5</td>
+                            <td>BUY LAYER 1</td>
+                        </tr>
+                        <tr>
+                            <td>Drop %3.0</td>
+                            <td>BUY LAYER 2</td>
+                        </tr>
+                        <tr style="background:rgba(0,255,136,0.05)">
+                            <td>Recover to Avg</td>
+                            <td><b>TRIM (CLOSE RISKY LAYERS)</b></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <h2 class="section-title"><i class="fas fa-sliders-h"></i> Sizing Settings</h2>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="card" style="border-color:var(--warning)">
+                    <h3>TON/USDT (VIP)</h3>
+                    <p>Entry: $15 | Layers: $8 / $8 / $15</p>
+                </div>
+                <div class="card">
+                    <h3>Standard (BTC, ETH...)</h3>
+                    <p>Entry: $10 | Layers: $5 / $5 / $10</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(lang) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (lang === 'tr') {
+                document.getElementById('content-tr').style.display = 'block';
+                document.getElementById('content-en').style.display = 'none';
+            } else {
+                document.getElementById('content-tr').style.display = 'none';
+                document.getElementById('content-en').style.display = 'block';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

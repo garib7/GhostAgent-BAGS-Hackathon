@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# Bot runtime files
+*.pid
+*.lock
+*.log
+*.csv
+
+# Secrets
+config_local.py
+secrets.json

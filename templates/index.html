@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostAgent | Solana Autonomous Protocol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Solana Brand Colors */
+            --primary: #00ffa3;     /* Solana Neon Green */
+            --secondary: #dc1fff;   /* Solana Purple */
+            --accent: #03e1ff;      /* Cyber Blue */
+            --success: #00ff88;
+            --danger: #ff3366;
+            --warning: #ffcc00;
+            --bg: #050508;          /* Pitch dark cyberpunk bg */
+            --panel: rgba(10, 10, 15, 0.85);
+            --border: rgba(0, 255, 163, 0.15);
+            --text-main: #f0f0f5;
+            --text-dim: #7f8ea3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(220, 31, 255, 0.08), transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 163, 0.08), transparent 40%);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Loading Overlay */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0, 255, 163, 0.1);
+            border-top: 3px solid var(--primary);
+            border-bottom: 3px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 340px;
+            grid-template-rows: 70px 1fr 220px;
+            gap: 12px;
+            padding: 12px;
+            height: 100vh;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        /* Glass Panel Base */
+        .panel {
+            background: var(--panel);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* HEADER */
+        .header {
+            grid-column: 1 / 4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 2px solid rgba(0, 255, 163, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(0, 255, 163, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.6rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .top-stats {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .stat-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 8px rgba(0, 255, 163, 0.3);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 163, 0.1);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid rgba(0, 255, 163, 0.4);
+            text-transform: uppercase;
+        }
+
+        .status-badge.stopped {
+            background: rgba(255, 51, 102, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 10px currentColor;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.4; }
+        }
+
+        .settings-trigger {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            border: 1px solid transparent;
+        }
+
+        .settings-trigger:hover {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: rgba(0, 255, 163, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 163, 0.2);
+        }
+
+        /* SIDEBAR / CONTROLS */
+        .sidebar {
+            grid-row: 2 / 3;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(0, 255, 163, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: rgba(0, 255, 163, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 15px rgba(0, 255, 163, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary);
+            color: black;
+            box-shadow: 0 0 20px rgba(0, 255, 163, 0.4);
+        }
+
+        .btn-danger {
+            background: rgba(255, 51, 102, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 51, 102, 0.5);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        .btn-outline:hover, .btn-outline.active {
+            border-color: var(--secondary);
+            color: var(--secondary);
+            background: rgba(220, 31, 255, 0.1);
+        }
+
+        /* MAIN CONTENT - POSITIONS */
+        .main-content {
+            grid-row: 2 / 3;
+            background: linear-gradient(to bottom, rgba(10,10,15,0.9), rgba(5,5,8,0.95));
+        }
+
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        th {
+            padding: 12px;
+            color: var(--text-dim);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--panel);
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 14px 12px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: #d8d8d8;
+        }
+
+        .badge-side {
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .side-buy {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .side-sell {
+            background: rgba(255, 51, 102, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .pnl-plus {
+            color: var(--success);
+            font-weight: 700;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.4);
+        }
+
+        .pnl-minus {
+            color: var(--danger);
+            font-weight: 700;
+            text-shadow: 0 0 5px rgba(255, 51, 102, 0.4);
+        }
+
+        /* RIGHT BAR - INDICATORS */
+        .indicators-bar {
+            grid-row: 2 / 3;
+            border-right: 1px solid var(--border);
+        }
+
+        .symbol-card {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0,255,163,0.1);
+            transition: all 0.3s;
+        }
+
+        .symbol-card:hover {
+            border-color: var(--primary);
+            box-shadow: inset 0 0 10px rgba(0,255,163,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 6px;
+        }
+
+        .card-symbol {
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+        }
+
+        .card-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* BOTTOM - LOGS / TERMINAL */
+        .logs-panel {
+            grid-column: 1 / 4;
+            background: rgba(2, 2, 5, 0.95); /* Deeper black for terminal */
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        /* Terminal Scanline Effect */
+        .logs-panel::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Glitch effect on panel title */
+        .terminal-title {
+            color: var(--primary);
+            text-shadow: 2px 0 var(--secondary), -2px 0 var(--accent);
+        }
+
+        .log-terminal {
+            flex: 1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--primary); /* Matrix green default */
+            overflow-y: auto;
+            padding: 8px;
+            line-height: 1.5;
+            position: relative;
+            z-index: 3;
+            text-shadow: 0 0 4px rgba(0,255,163,0.3);
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+        }
+
+        .log-time {
+            color: var(--text-dim);
+            margin-right: 8px;
+        }
+
+        .log-tag {
+            color: var(--secondary);
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: var(--bg);
+            border: 1px solid var(--primary);
+            width: 550px;
+            max-width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 0 40px rgba(0, 255, 163, 0.15);
+            position: relative;
+        }
+
+        .modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary), var(--accent));
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 4px;
+            color: var(--text-main);
+            font-family: 'JetBrains Mono', monospace;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 255, 163, 0.2);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 163, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top:20px; color:var(--primary); font-family: 'JetBrains Mono'; letter-spacing:2px; font-weight:700; text-shadow: 0 0 10px var(--primary);">ESTABLISHING SOLANA TRUNK...</p>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 style="font-weight: 800; font-size: 1.2rem; color:#fff;">ENGINE CONFIGURATION</h2>
+                <div class="settings-trigger" onclick="closeModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Solana RPC / API Key</label>
+                <input type="text" id="set-api-key" placeholder="Enter Jupiter Route API / RPC Key">
+            </div>
+            <div class="input-group">
+                <label>Agent Secret (Private Key)</label>
+                <input type="password" id="set-secret-key" placeholder="Encrypted Agent Secret">
+            </div>
+            <div class="input-group">
+                <label>Network Account ID</label>
+                <input type="text" id="set-account-id" placeholder="Solana Wallet / SubAccount">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div class="input-group">
+                    <label>Base Layer (USD Margin)</label>
+                    <input type="number" id="set-margin" step="1" min="5" value="5">
+                </div>
+                <div class="input-group">
+                    <label>Phantom Leverage Multip.</label>
+                    <input type="number" id="set-leverage" step="1" min="1" max="50" value="25">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div class="input-group">
+                    <label>Dynamic Risk Sizing</label>
+                    <select id="set-auto-scale">
+                        <option value="false">Static Scaling</option>
+                        <option value="true">Active (TVL Based Sizing)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Reference TVL (USD)</label>
+                    <input type="number" id="set-initial-balance" step="10" min="50" value="100">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Execution Environment</label>
+                <select id="set-paper">
+                    <option value="true">Testnet (Simulation Node)</option>
+                    <option value="false">Solana Mainnet (Live Capital)</option>
+                </select>
+            </div>
+
+            <div style="background: rgba(255, 51, 102, 0.05); border: 1px dashed rgba(255, 51, 102, 0.4); padding: 15px; border-radius: 4px; font-size: 0.75rem; color: #ff80a0; font-family:'JetBrains Mono'; line-height: 1.5; margin-bottom: 5px;">
+                <strong style="color: var(--danger); font-size: 0.85rem;">[!] PROTOCOL WARNING:</strong><br>
+                Ensure margin constraints in your backend environment match exactly with GhostAgent leverage multipliers here. Mismatched latency triggers will result in execution rejections.
+            </div>
+
+            <div class="modal-footer">
+                <div style="flex: 1; font-size: 0.7rem; font-family:'JetBrains Mono'; color: var(--text-dim);">
+                    > Node restart required after param injection.
+                </div>
+                <button class="btn btn-primary" style="width: auto; padding: 10px 24px;" onclick="saveSettings()">INJECT PARAMS</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="panel header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <!-- A simple cyber ghost / shield icon -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                        <path d="M12,2A9,9 0 0,1 21,11V21.5L18.5,19L16,21.5L13.5,19L11,21.5L8.5,19L6,21.5L3.5,19L1,21.5V11A9,9 0 0,1 10,2M12,4A7,7 0 0,0 5,11V18.17L6,17.17L8.5,19.67L11,17.17L13.5,19.67L16,17.17L18.5,19.67L19,18.17V11A7,7 0 0,0 12,4Z" />
+                    </svg>
+                </div>
+                <!-- Branding changed to GhostAgent -->
+                <div class="logo-text">GhostAgent<span style="color:var(--text-dim);font-weight:400;">|Protocol</span></div>
+            </div>
+
+            <div class="top-stats">
+                <div class="stat-item">
+                    <span class="stat-label">TOTAL TVL (USD)</span>
+                    <span class="stat-value" id="balance-val">$0.00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">ROUTED LIQUIDITY</span>
+                    <span class="stat-value" id="committed-val" style="color:var(--accent)">$0.00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">ACTIVE P&L</span>
+                    <span class="stat-value" id="unrealized-pnl-val" style="color:var(--text-main)">$0.00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">SESSION YIELD</span>
+                    <span class="stat-value" id="daily-pnl-val" style="color:var(--text-main)">$0.00</span>
+                </div>
+                <div class="status-badge stopped" id="bot-status-badge">
+                    <div class="status-dot"></div>
+                    <span id="bot-status-text">OFFLINE</span>
+                </div>
+                <!-- Help / Documentation -->
+                <a href="/manual" target="_blank" class="settings-trigger" title="Agent Neural Manual">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                </a>
+                <div class="settings-trigger" onclick="openModal()" title="Node Configuration">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- SIDEBAR / CONTROLS -->
+        <aside class="panel sidebar">
+            <div>
+                <div>
+                    <div class="section-title">ROUTING ALGORITHM</div>
+                    <div style="display:flex; gap:6px; margin-bottom:12px;">
+                        <button class="btn btn-outline" id="mode-econ" onclick="setStrategy('ECONOMIC')" style="padding:8px; font-size:0.75rem; flex:1">TTP BASE Layer</button>
+                        <button class="btn btn-outline" id="mode-martin" onclick="setStrategy('MARTINGALE')" style="padding:8px; font-size:0.75rem; flex:1">TTP SCALPER</button>
+                    </div>
+                    <button class="btn btn-primary" id="start-btn" onclick="toggleBot()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+                        </svg>
+                        INITIATE GHOST ENGINE
+                    </button>
+                </div>
+
+                <div style="margin-top: 25px;">
+                    <div class="section-title" style="color:var(--danger); text-shadow:0 0 5px rgba(255,51,102,0.4)">OVERRIDES</div>
+                    <div style="display:flex; flex-direction:column; gap:8px">
+                        <button class="btn btn-danger" style="padding: 10px;" onclick="emergencyAction('close_all')">FORCE CLOSE ALL ROUTS</button>
+                        <button class="btn btn-outline" style="color:var(--warning); padding: 10px;" onclick="emergencyAction('cancel_all')">PURGE PENDING TX</button>
+                    </div>
+                </div>
+
+                <div style="margin-top:auto">
+                    <div class="section-title">ON-CHAIN METRICS</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap:10px">
+                        <div class="symbol-card" style="margin:0; text-align:center; padding: 8px;">
+                            <div class="metric-label">Execution WR</div>
+                            <div class="metric-value" id="win-rate" style="color: var(--primary);">0%</div>
+                        </div>
+                        <div class="symbol-card" style="margin:0; text-align:center; padding: 8px;">
+                            <div class="metric-label">Blocks Routed</div>
+                            <div class="metric-value" id="total-trades" style="color: var(--accent);">0</div>
+                        </div>
+                    </div>
+                </div>
+        </aside>
+
+        <!-- MAIN CONTENT - POSITIONS -->
+        <main class="panel main-content">
+            <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    ACTIVE NETWORK ROUTS
+                    <span id="pos-count" style="display:inline-block; margin-left:8px; padding: 2px 6px; background:rgba(0,255,163,0.1); border-radius:4px; border:1px solid var(--primary); color:var(--primary); font-size:0.75rem;">0</span>
+                </div>
+                <div style="font-size:0.6rem; font-family:'JetBrains Mono'; color:var(--text-dim); background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:4px; display:flex; gap:5px; align-items:center; cursor:help"
+                    title="Small threshold balances (<$3) are ignored by GhostEngine targeting protocols to preserve fee-efficiency.">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,16.5H13V18.5H11V16.5M11,7H13V15H11V7Z" />
+                    </svg>
+                    Micro-Dust Filtered </div>
+                </div>
+                <div class="table-container">
+                    <table id="positions-table">
+                        <thead>
+                            <tr>
+                                <th>Token Pool</th>
+                                <th>Vector</th>
+                                <th>Volume</th>
+                                <th>Entry Root</th>
+                                <th>Liq Offset</th>
+                                <th>Delta P&L</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+        </main>
+
+        <!-- RIGHT BAR - INDICATORS -->
+        <aside class="panel indicators-bar">
+            <div class="section-title">TTP GHOST ENGINE (TELEMETRY)</div>
+            <div id="indicators-list" style="overflow-y:auto; padding-right:5px;">
+                <!-- Dynamic cards -->
+            </div>
+        </aside>
+
+        <!-- $GHOST TOKEN PANEL -->
+        <section class="panel" style="grid-column: 1 / -1; border-color: #9945FF; margin: 0 1rem;">
+            <div class="section-title" style="color:#9945FF;">~> $GHOST TOKEN PROTOCOL // BAGS ECOSYSTEM</div>
+            <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; padding: 1rem;">
+                <div class="stat-card" style="border-color:#9945FF;">
+                    <span class="stat-label">GATE STATUS</span>
+                    <span class="stat-value" id="ghost-gate" style="color:#14F195;">CHECKING...</span>
+                </div>
+                <div class="stat-card" style="border-color:#9945FF;">
+                    <span class="stat-label">$GHOST BALANCE</span>
+                    <span class="stat-value" id="ghost-balance" style="color:#9945FF;">0</span>
+                </div>
+                <div class="stat-card" style="border-color:#9945FF;">
+                    <span class="stat-label">TOTAL BURNED 🔥</span>
+                    <span class="stat-value" id="ghost-burned" style="color:#FF6B35;">0</span>
+                </div>
+                <div class="stat-card" style="border-color:#9945FF;">
+                    <span class="stat-label">HOLDERS</span>
+                    <span class="stat-value" id="ghost-holders" style="color:#14F195;">0</span>
+                </div>
+                <div class="stat-card" style="border-color:#9945FF;">
+                    <span class="stat-label">FEE POOL (USDC)</span>
+                    <span class="stat-value" id="ghost-fee-pool" style="color:#14F195;">$0.00</span>
+                </div>
+            </div>
+            <div style="padding: 0 1rem 1rem; display:flex; gap:1rem; align-items:center;">
+                <span style="font-size:0.75rem; color:#666;">BAGS API:</span>
+                <span id="bags-api-status" style="font-size:0.75rem; color:#14F195; font-weight:bold;">CONNECTING...</span>
+                <span style="font-size:0.75rem; color:#666; margin-left:1rem;">WALLET:</span>
+                <span id="ghost-wallet" style="font-size:0.75rem; color:#9945FF; font-family:monospace;">---</span>
+                <span style="font-size:0.75rem; color:#666; margin-left:1rem;">CIRCULATING:</span>
+                <span id="ghost-circulating" style="font-size:0.75rem; color:#ccc;">---</span>
+            </div>
+        </section>
+
+        <!-- BOTTOM - LOGS -->
+        <footer class="panel logs-panel">
+            <div class="section-title terminal-title">~> GHOST_AGENT OVERCAST TERMINAL</div>
+            <div class="log-terminal" id="log-terminal">
+                <!-- Javascript will inject logs here -->
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let isRunning = false;
+        let isTransitioning = false;
+
+        // API Call Wrapper
+        async function api(path, method = 'GET', body = null) {
+            try {
+                const options = { method };
+                if (body) {
+                    options.headers = { 'Content-Type': 'application/json' };
+                    options.body = JSON.stringify(body);
+                }
+                const res = await fetch(`/api/${path}`, options);
+                return await res.json();
+            } catch (err) {
+                console.error(`API Error (${path}):`, err);
+                return { success: false, error: err.message };
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', async () => {
+            addLog('SYS_INIT', 'Establishing Sub-second Solana WebSocket bindings...');
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                addLog('CORE', 'GhostAgent Engine Ready. Standing by for protocol initiation.');
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            }, 1000);
+
+            // Load current settings
+            const res = await api('status');
+            if (res.settings) {
+                document.getElementById('set-api-key').value = res.settings.api_key || '';
+                document.getElementById('set-secret-key').value = res.settings.secret_key || '';
+                document.getElementById('set-account-id').value = res.settings.account_id || '';
+                document.getElementById('set-margin').value = res.settings.margin_per_trade || 5;
+                document.getElementById('set-leverage').value = res.settings.leverage || 25;
+                document.getElementById('set-paper').value = String(res.settings.paper_trading !== false);
+                document.getElementById('set-auto-scale').value = String(res.settings.auto_scale === true);
+                document.getElementById('set-initial-balance').value = res.settings.initial_balance || 100;
+            }
+
+            setInterval(updateTelemetry, 2000);
+            updateTelemetry();
+
+            // $GHOST Token Panel Polling
+            async function updateGhostPanel() {
+                try {
+                    const res = await fetch('/api/ghost/status');
+                    const data = await res.json();
+                    if (!data) return;
+                    const gateEl = document.getElementById('ghost-gate');
+                    gateEl.innerText = data.gate_status;
+                    gateEl.style.color = data.gate_status === 'AUTHORIZED' ? '#14F195' : '#FF4136';
+                    document.getElementById('ghost-balance').innerText = data.ghost_balance.toLocaleString() + ' $GHOST';
+                    document.getElementById('ghost-burned').innerText = data.burned.toLocaleString();
+                    document.getElementById('ghost-holders').innerText = data.holders.toLocaleString();
+                    document.getElementById('ghost-fee-pool').innerText = '$' + data.fee_pool_usdc.toFixed(2);
+                    document.getElementById('bags-api-status').innerText = data.bags_api;
+                    document.getElementById('ghost-wallet').innerText = data.connected_wallet;
+                    document.getElementById('ghost-circulating').innerText = data.circulating.toLocaleString() + ' $GHOST';
+                } catch(e) {}
+            }
+            setInterval(updateGhostPanel, 5000);
+            updateGhostPanel();
+        });
+
+        function openModal() { document.getElementById('settings-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('settings-modal').style.display = 'none'; }
+
+        async function saveSettings() {
+            const body = {
+                api_key: document.getElementById('set-api-key').value,
+                secret_key: document.getElementById('set-secret-key').value,
+                account_id: document.getElementById('set-account-id').value,
+                margin_per_trade: parseFloat(document.getElementById('set-margin').value),
+                leverage: parseInt(document.getElementById('set-leverage').value),
+                paper_trading: document.getElementById('set-paper').value === 'true',
+                auto_scale: document.getElementById('set-auto-scale').value === 'true',
+                initial_balance: parseFloat(document.getElementById('set-initial-balance').value)
+            };
+
+            const res = await api('settings', 'POST', body);
+            if (res.success) {
+                addLog('NODE', 'Parameters injected directly into Ghost Engine memory.');
+                closeModal();
+                updateTelemetry();
+            } else {
+                alert('Fatal Error: ' + res.message);
+            }
+        }
+
+        async function toggleBot() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
+            const btn = document.getElementById('start-btn');
+            btn.classList.add('spinning');
+
+            if (!isRunning) {
+                const res = await api('bot/start', 'POST');
+                if (res.success) {
+                    addLog('ROUTER', 'Broadcasting LIVE agent execution intent to Solana network...');
+                }
+            } else {
+                const res = await api('bot/stop', 'POST');
+                if (res.success) {
+                    addLog('ROUTER', 'Severing network bindings. Engine entering sleep state.');
+                }
+            }
+
+            // Wait for backend to reflect status
+            setTimeout(() => {
+                isTransitioning = false;
+                btn.classList.remove('spinning');
+                updateTelemetry();
+            }, 1000);
+        }
+
+        async function emergencyAction(action) {
+            if (!confirm('CRITICAL PROTOCOL OVERRIDE: Proceed with on-chain memory flush?')) return;
+            const res = await api(`bot/${action}`, 'POST');
+            if (res.success) {
+                addLog('SYS_OVERRIDE', res.message || 'On-chain memory wiped. Nodes reset.');
+            }
+        }
+
+        function updateStatus(running, status) {
+            if (isTransitioning) return;
+            isRunning = running;
+            const badge = document.getElementById('bot-status-badge');
+            const text = document.getElementById('bot-status-text');
+            const btn = document.getElementById('start-btn');
+
+            if (status === 'Error') {
+                badge.className = 'status-badge stopped';
+                text.innerText = 'ERR_CRITICAL';
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg> INITIATE GHOST ENGINE`;
+                btn.className = 'btn btn-primary';
+                return;
+            }
+
+            if (running) {
+                badge.classList.remove('stopped');
+                text.innerText = 'BROADCASTING';
+                text.style.color = 'var(--primary)';
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18,18H6V6H18V18Z"/></svg> HALT ENGINE`;
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-danger');
+            } else {
+                badge.classList.add('stopped');
+                text.innerText = 'OFFLINE';
+                text.style.color = '';
+                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg> INITIATE GHOST ENGINE`;
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-primary');
+            }
+        }
+
+        async function updateTelemetry() {
+            const data = await api('telemetry');
+            if (data.error && data.status !== 'Error') return;
+
+            if (data.status === 'Error') {
+                updateStatus(false, 'Error');
+                if (window.lastErrorSeen !== data.error) {
+                    addLog('FATAL', `<span style="color:var(--danger)">${data.error}</span>`);
+                    window.lastErrorSeen = data.error;
+                }
+                return;
+            }
+            updateStatus(data.status === 'Running');
+
+            // Balance
+            const balance = parseFloat(data.balance);
+            document.getElementById('balance-val').innerText = isNaN(balance) ? '$0.00' : `$${balance.toFixed(2)}`;
+
+            // P&L Updates
+            const stats = data.stats || {};
+
+            // Unrealized P&L
+            const unrealizedEl = document.getElementById('unrealized-pnl-val');
+            const unrealizedPnl = parseFloat(stats.unrealized_pnl_usd || 0);
+            unrealizedEl.innerText = `${unrealizedPnl >= 0 ? '+' : ''}$${unrealizedPnl.toFixed(2)}`;
+            unrealizedEl.style.color = unrealizedPnl >= 0 ? 'var(--primary)' : 'var(--danger)';
+            unrealizedEl.style.textShadow = unrealizedPnl >= 0 ? '0 0 10px rgba(0,255,163,0.4)' : '0 0 10px rgba(255,51,102,0.4)';
+
+            // Committed Margin
+            const committedEl = document.getElementById('committed-val');
+            const committed = parseFloat(stats.total_committed_margin || 0);
+            committedEl.innerText = `$${committed.toFixed(2)}`;
+
+            // Daily Realized P&L
+            const dailyPnlEl = document.getElementById('daily-pnl-val');
+            const dailyPnl = parseFloat(stats.daily_realized_pnl || 0);
+            dailyPnlEl.innerText = `${dailyPnl >= 0 ? '+' : ''}$${dailyPnl.toFixed(2)}`;
+            dailyPnlEl.style.color = dailyPnl >= 0 ? 'var(--primary)' : 'var(--danger)';
+            dailyPnlEl.style.textShadow = dailyPnl >= 0 ? '0 0 10px rgba(0,255,163,0.4)' : '0 0 10px rgba(255,51,102,0.4)';
+
+            // Mode buttons
+            const activeMode = stats.active_strategy_mode || 'ECONOMIC';
+            const modeEcon = document.getElementById('mode-econ');
+            const modeMartin = document.getElementById('mode-martin');
+            if (modeEcon) modeEcon.className = activeMode === 'ECONOMIC' ? 'btn btn-outline active' : 'btn btn-outline';
+            if (modeMartin) modeMartin.className = activeMode === 'MARTINGALE' ? 'btn btn-outline active' : 'btn btn-outline';
+
+            // Terminal Stats
+            document.getElementById('win-rate').innerText = `${stats.win_rate || 0}%`;
+            document.getElementById('total-trades').innerText = stats.total_trades || 0;
+
+            // Positions
+            const posTableBody = document.querySelector('#positions-table tbody');
+            document.getElementById('pos-count').innerText = data.positions ? data.positions.length : 0;
+
+            if (data.positions && data.positions.length > 0) {
+                posTableBody.innerHTML = data.positions.map(p => {
+                    const pnl = parseFloat(p.unrealized_pnl || 0);
+                    const liqDist = parseFloat(p.liq_distance || 100).toFixed(1);
+                    return `
+                        <tr style="background: rgba(0,0,0,0.2); transition: 0.3s;" onmouseover="this.style.background='rgba(0,255,163,0.05)'" onmouseout="this.style.background='rgba(0,0,0,0.2)'">
+                            <td style="color:var(--accent); font-weight:700;">${p.symbol}</td>
+                            <td><span class="badge-side side-${p.side.toLowerCase()}">${p.side}</span></td>
+                            <td>${parseFloat(p.size).toFixed(4)}</td>
+                            <td>$${parseFloat(p.entry_price).toFixed(2)}</td>
+                            <td style="color:${liqDist < 10 ? 'var(--danger)' : 'var(--text-dim)'}">%${liqDist}</td>
+                            <td class="${pnl >= 0 ? 'pnl-plus' : 'pnl-minus'}">${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}%</td>
+                            <td><button class="btn btn-outline" style="padding:4px 8px; font-size:0.7rem; width:auto; border-color:var(--danger); color:var(--danger);" onclick="closeOne('${p.symbol}')" onmouseover="this.style.background='var(--danger)'; this.style.color='white'" onmouseout="this.style.background='transparent'; this.style.color='var(--danger)'">EXTRACT</button></td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                posTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding: 30px;">[ NO ACTIVE ROUTE VECTORS DETECTED ]</td></tr>';
+            }
+
+            // Indicators
+            const indList = document.getElementById('indicators-list');
+            const indicators = data.indicators || {};
+            const syms = Object.keys(indicators);
+
+            if (syms.length > 0) {
+                indList.innerHTML = syms.map(sym => {
+                    const ind = indicators[sym];
+                    return `
+                        <div class="symbol-card">
+                            <div class="card-header">
+                                <span class="card-symbol">${sym.replace('_USDT_Perp', '')}</span>
+                                <span style="font-size:0.65rem; font-family:'JetBrains Mono'; padding:2px 6px; background:rgba(3,225,255,0.1); color:var(--accent); border-radius:2px; border:1px solid rgba(3,225,255,0.3)">TTP VERIFIED</span>
+                            </div>
+                            <div class="card-metrics">
+                                <div class="metric"><span class="metric-label">MOMENTUM (RSI)</span><span class="metric-value">${ind.rsi}</span></div>
+                                <div class="metric"><span class="metric-label">DELTA POS</span><span class="metric-value">${ind.bb_pos}</span></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                indList.innerHTML = '<div style="padding:20px; color:var(--text-dim); font-size:0.75rem; text-align:center; font-family:\'JetBrains Mono\'">> Listening to DEX Aggregator Streams...</div>';
+            }
+        }
+
+        function addLog(tag, msg) {
+            const term = document.getElementById('log-terminal');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            /* Cyberpunk color variations based on tag */
+            let tagColor = "var(--secondary)";
+            if(tag === "ERROR" || tag === "FATAL") tagColor = "var(--danger)";
+            if(tag === "SYS_INIT" || tag === "NODE") tagColor = "var(--accent)";
+
+            entry.innerHTML = `<span class="log-time" style="opacity:0.6">[${time}]</span> <span class="log-tag" style="color:${tagColor}">&lt;${tag}&gt;</span> <span style="color:#f0f0f5">${msg}</span>`;
+            term.prepend(entry);
+        }
+
+        async function setStrategy(mode) {
+            const res = await api('settings', 'POST', { active_strategy_mode: mode });
+            if (res.success) {
+                addLog('ALGORITHM', `Base logic shifted to ${mode}. Re-calculating tick constraints.`);
+                updateTelemetry();
+            }
+        }
+
+        function closeOne(symbol) {
+            if (confirm(`FORCE OVERRIDE: Extract protocol from ${symbol} liquidity pool immediately?`)) {
+                // Future Implementation for single close wrapper
+            }
+        }
+    </script>
+</body>
+
+</html>
